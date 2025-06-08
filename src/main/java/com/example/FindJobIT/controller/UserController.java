@@ -5,14 +5,14 @@ import org.springframework.web.bind.annotation.RestController;
 import com.turkraft.springfilter.boot.Filter;
 
 import jakarta.validation.Valid;
-import vn.hoidanit.jobhunter.domain.User;
-import vn.hoidanit.jobhunter.domain.response.ResCreateUserDTO;
-import vn.hoidanit.jobhunter.domain.response.ResUpdateUserDTO;
-import vn.hoidanit.jobhunter.domain.response.ResUserDTO;
-import vn.hoidanit.jobhunter.domain.response.ResultPaginationDTO;
-import vn.hoidanit.jobhunter.service.UserService;
-import vn.hoidanit.jobhunter.util.annotation.ApiMessage;
-import vn.hoidanit.jobhunter.util.error.IdInvalidException;
+import com.example.FindJobIT.domain.User;
+import com.example.FindJobIT.domain.response.user.ResCreateUserDTO;
+import com.example.FindJobIT.domain.response.user.ResUpdateUserDTO;
+import com.example.FindJobIT.domain.response.user.ResUserDTO;
+import com.example.FindJobIT.domain.response.ResultPaginationDTO;
+import com.example.FindJobIT.service.UserService;
+import com.example.FindJobIT.util.annotation.ApiMessage;
+import com.example.FindJobIT.util.error.IdInvalidException;
 
 import java.util.List;
 import java.util.Optional;

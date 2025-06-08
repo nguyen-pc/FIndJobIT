@@ -10,14 +10,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import vn.hoidanit.jobhunter.domain.Company;
-import vn.hoidanit.jobhunter.domain.Role;
-import vn.hoidanit.jobhunter.domain.User;
-import vn.hoidanit.jobhunter.domain.response.ResCreateUserDTO;
-import vn.hoidanit.jobhunter.domain.response.ResUpdateUserDTO;
-import vn.hoidanit.jobhunter.domain.response.ResUserDTO;
-import vn.hoidanit.jobhunter.domain.response.ResultPaginationDTO;
-import vn.hoidanit.jobhunter.repository.UserRepository;
+import com.example.FindJobIT.domain.Company;
+import com.example.FindJobIT.domain.Role;
+import com.example.FindJobIT.domain.User;
+import com.example.FindJobIT.domain.response.user.ResCreateUserDTO;
+import com.example.FindJobIT.domain.response.user.ResUpdateUserDTO;
+import com.example.FindJobIT.domain.response.user.ResUserDTO;
+import com.example.FindJobIT.domain.response.ResultPaginationDTO;
+import com.example.FindJobIT.repository.UserRepository;
 
 @Service
 public class UserService {
