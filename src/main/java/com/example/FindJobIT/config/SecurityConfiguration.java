@@ -1,6 +1,5 @@
 package com.example.FindJobIT.config;
 
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -52,7 +51,8 @@ public class SecurityConfiguration {
                 "/api/v1/auth/logout",
                 "/storage/**",
                 "/api/v1/email/**",
-                "/api/v1/files"
+                "/api/v1/files",
+                "/api/v1/jobs/follow/**",
                 // "/v3/api-docs/**",
                 // "/swagger-ui/**",
                 // "/swagger-ui.html"

@@ -59,6 +59,7 @@ public class Company {
     @JsonIgnore
     List<Job> jobs;
 
+
     @PrePersist
     public void handleBeforeCreate() {
         this.createdBy = SecurityUtil.getCurrentUserLogin().isPresent() == true
