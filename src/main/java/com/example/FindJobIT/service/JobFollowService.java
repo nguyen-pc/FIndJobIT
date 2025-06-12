@@ -1,7 +1,9 @@
 package com.example.FindJobIT.service;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
@@ -45,5 +47,20 @@ public class JobFollowService {
             throw new IllegalArgumentException("JobFollow not found");
         }
         this.jobFollowRepository.delete(jobFollowOptional.get());
+    }
+
+    // public Iterable<JobFollow> getAllJobFollowsByUserId(Long userId) {
+    //     Optional<User> userOptional = this.userRepository.findById(userId);
+    //     if (userOptional.isEmpty()) {
+    //         throw new IllegalArgumentException("User not found");
+    //     }
+    //     return this.jobFollowRepository.findAllByUser(userOptional.get());
+    // }
+
+    public List<Job> getJobsFollowedByUserId(long userId) {
+        List<JobFollow> follows = jobFollowRepository.findAllByUserId(userId);
+        return follows.stream()
+                .map(JobFollow::getJob)
+                .collect(Collectors.toList());
     }
 }

@@ -24,7 +24,7 @@ import lombok.Setter;
 public class CompanyFollow {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long idJobFollow;
+    private long idCompanyFollow;
     private Instant createdAt;
     private Instant updatedAt;
     private String createdBy;

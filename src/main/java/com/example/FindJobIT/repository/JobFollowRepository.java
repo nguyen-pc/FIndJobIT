@@ -5,12 +5,14 @@ import org.springframework.stereotype.Repository;
 import com.example.FindJobIT.domain.Job;
 import com.example.FindJobIT.domain.JobFollow;
 
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 @Repository
 public interface JobFollowRepository extends JpaRepository<JobFollow, Long>,
         JpaSpecificationExecutor<JobFollow> {
-
+        List<JobFollow> findAllByUserId(long userId);
         
 }
 
