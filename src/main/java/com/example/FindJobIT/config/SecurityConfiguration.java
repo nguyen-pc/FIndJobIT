@@ -53,6 +53,7 @@ public class SecurityConfiguration {
                 "/api/v1/email/**",
                 "/api/v1/files",
                 "/api/v1/jobs/follow/**",
+                "/api/v1/auth/forgot_password", "/api/v1/auth/reset_password",
                 // "/v3/api-docs/**",
                 // "/swagger-ui/**",
                 // "/swagger-ui.html"
@@ -65,6 +66,7 @@ public class SecurityConfiguration {
                         authz -> authz
                                 .requestMatchers(whiteList).permitAll()
                                 .requestMatchers(HttpMethod.GET, "/api/v1/companies/**").permitAll()
+                                .requestMatchers(HttpMethod.GET, "/api/v1/auth/reset_password").permitAll()
                                 .requestMatchers(HttpMethod.GET, "/api/v1/jobs/**").permitAll()
                                 .requestMatchers(HttpMethod.GET, "/api/v1/skills/**").permitAll()
 

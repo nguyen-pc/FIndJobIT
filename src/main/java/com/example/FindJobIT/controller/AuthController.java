@@ -1,6 +1,10 @@
 package com.example.FindJobIT.controller;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -18,14 +22,21 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
+
+import com.example.FindJobIT.domain.PasswordResetToken;
 import com.example.FindJobIT.domain.User;
+import com.example.FindJobIT.domain.request.ReqForgotPassword;
 import com.example.FindJobIT.domain.request.ReqLoginDTO;
 import com.example.FindJobIT.domain.response.user.ResCreateUserDTO;
+import com.example.FindJobIT.repository.PasswordResetTokenRepository;
+import com.example.FindJobIT.repository.UserRepository;
 import com.example.FindJobIT.domain.response.RestLoginDTO;
 import com.example.FindJobIT.domain.response.google.GoogleUser;
+import com.example.FindJobIT.service.EmailService;
 import com.example.FindJobIT.service.UserService;
 import com.example.FindJobIT.util.SecurityUtil;
 import com.example.FindJobIT.util.annotation.ApiMessage;
@@ -37,17 +48,25 @@ public class AuthController {
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final SecurityUtil securityUtil;
     private final UserService userService;
+    private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final PasswordResetTokenRepository passwordResetTokenRepository;
+    private final EmailService emailService;
 
     @Value("${findjob.jwt.refresh-token-validity-in-seconds}")
     private long refreshTokenExpiration;
 
     public AuthController(AuthenticationManagerBuilder authenticationManagerBuilder, SecurityUtil securityUtil,
-            UserService userService, PasswordEncoder passwordEncoder) {
+            UserService userService, PasswordEncoder passwordEncoder,
+            PasswordResetTokenRepository passwordResetTokenRepository,
+            EmailService emailService, UserRepository userRepository) {
         this.authenticationManagerBuilder = authenticationManagerBuilder;
         this.securityUtil = securityUtil;
         this.userService = userService;
         this.passwordEncoder = passwordEncoder;
+        this.passwordResetTokenRepository = passwordResetTokenRepository;
+        this.emailService = emailService;
+        this.userRepository = userRepository;
     }
 
     @PostMapping("/auth/login")
@@ -266,4 +285,44 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.CREATED).body(this.userService.convertToResCreateUserDTO(ericUser));
     }
 
+    @PostMapping("/auth/forgot_password")
+    @ApiMessage("Forget password")
+    public ResponseEntity<Void> forgetPassword(@RequestParam("email") String email) {
+
+        User user = this.userService.handleGetUserByUsername(email);
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+
+        PasswordResetToken oldToken = passwordResetTokenRepository.findByUser(user);
+        if (oldToken != null) {
+            passwordResetTokenRepository.delete(oldToken);
+        }
+
+        String token = UUID.randomUUID().toString();
+
+        PasswordResetToken resetToken = new PasswordResetToken(token, user);
+        passwordResetTokenRepository.save(resetToken);
+
+        String resetLink = "http://localhost:8080/api/v1/auth/reset_password?token=" + token;
+        emailService.sendEmailForgotPassword(email, "Reset your password", "Click link: " + resetLink);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/auth/reset_password")
+    @ApiMessage("Reset password")
+    public ResponseEntity<?> resetPassword(@RequestParam("token") String token, @RequestBody ReqForgotPassword req) {
+        PasswordResetToken resetToken = passwordResetTokenRepository.findByToken(token);
+        if (resetToken == null || resetToken.getExpiryDate().before(new java.util.Date())) {
+            return ResponseEntity.badRequest().body("Token không hợp lệ hoặc đã hết hạn");
+        }
+
+        User user = resetToken.getUser();
+        user.setPassword(passwordEncoder.encode(req.getNewPassword()));
+        userRepository.save(user);
+
+        passwordResetTokenRepository.delete(resetToken);
+
+        return ResponseEntity.ok("Đổi mật khẩu thành công");
+    }
 }
