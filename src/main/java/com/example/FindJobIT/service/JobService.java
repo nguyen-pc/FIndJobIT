@@ -49,14 +49,13 @@ public class JobService {
             j.setSkills(dbSkills);
         }
 
-         // check company
-         if (j.getCompany() != null) {
+        // check company
+        if (j.getCompany() != null) {
             Optional<Company> cOptional = this.companyRepository.findById(j.getCompany().getId());
             if (cOptional.isPresent()) {
                 j.setCompany(cOptional.get());
             }
         }
-
 
         // create job
         Job currentJob = this.jobRepository.save(j);
@@ -162,5 +161,14 @@ public class JobService {
         rs.setResult(pageUser.getContent());
 
         return rs;
+    }
+
+    public List<Job> getRecommendedJobs() {
+        List<Job> jobs = this.jobRepository.findAll();
+        if (jobs != null && !jobs.isEmpty()) {
+            // For simplicity, return the first 10 jobs as recommended
+            return jobs.stream().limit(50).collect(Collectors.toList());
+        }
+        return List.of();
     }
 }

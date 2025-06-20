@@ -42,6 +42,10 @@ public class Skill {
 
     @ManyToMany(fetch = FetchType.LAZY, mappedBy = "skills")
     @JsonIgnore
+    private List<User> users;
+
+    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "skills")
+    @JsonIgnore
     private List<Subscriber> subscribers;
 
     @PrePersist

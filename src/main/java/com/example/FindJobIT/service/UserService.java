@@ -5,6 +5,7 @@ import java.util.Optional;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
+import org.checkerframework.checker.units.qual.s;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -12,11 +13,13 @@ import org.springframework.stereotype.Service;
 
 import com.example.FindJobIT.domain.Company;
 import com.example.FindJobIT.domain.Role;
+import com.example.FindJobIT.domain.Skill;
 import com.example.FindJobIT.domain.User;
 import com.example.FindJobIT.domain.response.user.ResCreateUserDTO;
 import com.example.FindJobIT.domain.response.user.ResUpdateUserDTO;
 import com.example.FindJobIT.domain.response.user.ResUserDTO;
 import com.example.FindJobIT.domain.response.ResultPaginationDTO;
+import com.example.FindJobIT.repository.SkillRepository;
 import com.example.FindJobIT.repository.UserRepository;
 
 @Service
@@ -24,11 +27,14 @@ public class UserService {
     private final UserRepository userRepository;
     private final CompanyService companyService;
     private final RoleService roleService;
+    private final SkillRepository skillRepository;
 
-    public UserService(UserRepository userRepository, CompanyService companyService, RoleService roleService) {
+    public UserService(UserRepository userRepository, CompanyService companyService, RoleService roleService,
+            SkillRepository skillRepository) {
         this.userRepository = userRepository;
         this.companyService = companyService;
         this.roleService = roleService;
+        this.skillRepository = skillRepository;
     }
 
     public User handleCreateUser(User user) {
@@ -42,6 +48,15 @@ public class UserService {
         if (user.getRole() != null) {
             Role r = this.roleService.fetchById(user.getRole().getId());
             user.setRole(r != null ? r : null);
+        }
+
+        // check skill
+        if (user.getSkills() != null) {
+            List<Long> reqSkills = user.getSkills()
+                    .stream().map(x -> x.getId())
+                    .collect(Collectors.toList());
+            List<Skill> dbSkills = this.skillRepository.findByIdIn(reqSkills);
+            user.setSkills(dbSkills);
         }
 
         return this.userRepository.save(user);
@@ -113,13 +128,9 @@ public class UserService {
         return this.userRepository.findByEmail(username);
     }
 
-    
-
     public boolean isEmailExist(String email) {
         return this.userRepository.existsByEmail(email);
     }
-
-   
 
     public ResCreateUserDTO convertToResCreateUserDTO(User user) {
         ResCreateUserDTO res = new ResCreateUserDTO();
@@ -137,6 +148,13 @@ public class UserService {
             com.setName(user.getCompany().getName());
             res.setCompany(com);
         }
+
+        if (user.getSkills() != null) {
+            List<String> skills = user.getSkills()
+                    .stream().map(item -> item.getName())
+                    .collect(Collectors.toList());
+            res.setSkills(skills);
+        }
         return res;
     }
 
@@ -144,7 +162,7 @@ public class UserService {
         ResUserDTO res = new ResUserDTO();
         ResUserDTO.CompanyUser com = new ResUserDTO.CompanyUser();
         ResUserDTO.RoleUser roleUser = new ResUserDTO.RoleUser();
-        
+
         if (user.getCompany() != null) {
             com.setId(user.getCompany().getId());
             com.setName(user.getCompany().getName());
