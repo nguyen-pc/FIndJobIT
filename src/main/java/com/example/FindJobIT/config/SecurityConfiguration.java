@@ -53,6 +53,7 @@ public class SecurityConfiguration {
                 "/api/v1/email/**",
                 "/api/v1/files",
                 "/api/v1/jobs/follow/**",
+                "/api/v1/jobs-company/**",
                 "/api/v1/auth/forgot_password", "/api/v1/auth/reset_password",
                 // "/v3/api-docs/**",
                 // "/swagger-ui/**",

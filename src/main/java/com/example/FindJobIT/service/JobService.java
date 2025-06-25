@@ -171,4 +171,8 @@ public class JobService {
         }
         return List.of();
     }
+
+    public List<Job> getJobsByCompany(long companyId) {
+        return jobRepository.findByCompanyId(companyId);
+    }
 }

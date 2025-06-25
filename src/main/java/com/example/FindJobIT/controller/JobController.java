@@ -8,7 +8,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.MediaType;
 
-
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
@@ -100,6 +99,12 @@ public class JobController {
             Pageable pageable) {
 
         return ResponseEntity.ok().body(this.jobService.fetchAll(spec, pageable));
+    }
+
+    @GetMapping("/jobs-company/{companyId}")
+    @ApiMessage("Get job with company id")
+    public ResponseEntity<List<Job>> getJobsByCompany(@PathVariable("companyId") long companyId) {
+        return ResponseEntity.ok().body(this.jobService.getJobsByCompany(companyId));
     }
 
     @PostMapping("/jobs/recommend")
