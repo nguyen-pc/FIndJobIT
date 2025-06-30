@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import com.example.FindJobIT.domain.Company;
 import com.example.FindJobIT.domain.CompanyFollow;
+import com.example.FindJobIT.domain.JobFollow;
 import com.example.FindJobIT.domain.User;
 import com.example.FindJobIT.repository.CompanyFollowRepository;
 import com.example.FindJobIT.repository.CompanyRepository;
@@ -41,8 +42,9 @@ public class CompanyFollowService {
         return this.companyFollowRepository.save(companyFollow);
     }
 
-    public void deleteFollowCompany(long idCompanyFollow) {
-        Optional<CompanyFollow> comFollowOptional = this.companyFollowRepository.findById(idCompanyFollow);
+    public void deleteFollowCompany(long companyId, long userId) {
+        Optional<CompanyFollow> comFollowOptional = this.companyFollowRepository.findByCompanyIdAndUserId(companyId,
+                userId);
         if (comFollowOptional.isEmpty()) {
             throw new IllegalArgumentException("JobFollow not found");
         }
@@ -62,5 +64,15 @@ public class CompanyFollowService {
         return follows.stream()
                 .map(CompanyFollow::getCompany)
                 .collect(Collectors.toList());
+    }
+
+    public boolean isCompanyFollowedByUser(long companyId, long userId) {
+        Optional<CompanyFollow> jobFollowOptional = this.companyFollowRepository.findByCompanyIdAndUserId(companyId,
+                userId);
+        return jobFollowOptional.isPresent();
+    }
+
+    public long getFollowerCountForCompany(long companyId) {
+        return companyFollowRepository.countByCompany_Id(companyId);
     }
 }

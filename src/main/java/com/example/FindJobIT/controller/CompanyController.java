@@ -9,9 +9,12 @@ import com.example.FindJobIT.domain.Company;
 import com.example.FindJobIT.domain.User;
 import com.example.FindJobIT.domain.response.ResultPaginationDTO;
 import com.example.FindJobIT.service.CompanyService;
+import com.example.FindJobIT.service.JobFollowService;
 import com.example.FindJobIT.util.annotation.ApiMessage;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.data.domain.PageRequest;
@@ -28,62 +31,63 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
-
-
-
 @RestController
 @RequestMapping("/api/v1")
 public class CompanyController {
     private final CompanyService companyService;
+    private final JobFollowService jobFollowService;
 
-    public CompanyController(CompanyService companyService){
+    public CompanyController(CompanyService companyService, JobFollowService jobFollowService) {
         this.companyService = companyService;
+        this.jobFollowService = jobFollowService;
     }
 
     @PostMapping("/companies")
-    public ResponseEntity<?> createCompany(@Valid @RequestBody Company reqCompany){
+    public ResponseEntity<?> createCompany(@Valid @RequestBody Company reqCompany) {
         return ResponseEntity.status(HttpStatus.CREATED).body(this.companyService.handleCreateCompany(reqCompany));
     }
-    
+
     @GetMapping("/companies")
     public ResponseEntity<ResultPaginationDTO> getCompany(
-       @Filter Specification<Company> spec,
-        Pageable pageable
-    //     @RequestParam("current") Optional<String> currentOptional,
+            @Filter Specification<Company> spec,
+            Pageable pageable
+    // @RequestParam("current") Optional<String> currentOptional,
     // @RequestParam("pageSize") Optional<String> pageSizeOptional
-    ){
-       
+    ) {
+
         // String sCurrent = currentOptional.isPresent() ? currentOptional.get() : "";
-        // String sPageSize = pageSizeOptional.isPresent() ? pageSizeOptional.get() : "";
-       
-        
+        // String sPageSize = pageSizeOptional.isPresent() ? pageSizeOptional.get() :
+        // "";
+
         // int current = Integer.parseInt(sCurrent);
         // int pageSize = Integer.parseInt(sPageSize);
         // Pageable pageable = PageRequest.of(current - 1, pageSize);
 
-        ResultPaginationDTO companies = this.companyService.handleGetCompany(spec,pageable);
+        ResultPaginationDTO companies = this.companyService.handleGetCompany(spec, pageable);
 
         return ResponseEntity.ok(companies);
     }
 
     @PutMapping("/companies")
-    public ResponseEntity<Company> updateCompany(@Valid @RequestBody Company reqCompany){
+    public ResponseEntity<Company> updateCompany(@Valid @RequestBody Company reqCompany) {
         Company updateCompany = this.companyService.handleUpdateCompany(reqCompany);
 
         return ResponseEntity.ok(updateCompany);
     }
 
     @DeleteMapping("/companies/{id}")
-    public ResponseEntity<Void> deleteCompany(@PathVariable("id") long id){
+    public ResponseEntity<Void> deleteCompany(@PathVariable("id") long id) {
         this.companyService.handleDeleteCompany(id);
         return ResponseEntity.ok(null);
     }
 
     @GetMapping("/companies/{id}")
     @ApiMessage("fetch company by id")
-    public ResponseEntity<Company> fetchCompanyById(@PathVariable("id") long id){
+    public ResponseEntity<Company> fetchCompanyById(@PathVariable("id") long id) {
         Optional<Company> cOptional = this.companyService.findById(id);
         return ResponseEntity.ok().body(cOptional.get());
     }
-    
+
+   
+
 }

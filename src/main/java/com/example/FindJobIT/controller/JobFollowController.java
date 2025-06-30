@@ -1,6 +1,8 @@
 package com.example.FindJobIT.controller;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -45,10 +47,10 @@ public class JobFollowController {
                 .body(dto);
     }
 
-    @DeleteMapping("/jobs/follow/{id}")
+    @DeleteMapping("/jobs/follow")
     @ApiMessage("Unfollow a job by id")
-    public ResponseEntity<Void> unfollowJob(@PathVariable("id") long id) throws IdInvalidException {
-        this.jobFollowService.deleteFollowJob(id);
+    public ResponseEntity<Void> unfollowJob(@RequestBody ReqFollowJob reqFollowJob) throws IdInvalidException {
+        this.jobFollowService.deleteFollowJob(reqFollowJob.getJobId(), reqFollowJob.getUserId());
         return ResponseEntity.ok().body(null);
 
     }
@@ -59,5 +61,16 @@ public class JobFollowController {
 
         List<Job> jobs = jobFollowService.getJobsFollowedByUserId(id);
         return ResponseEntity.ok(jobs);
+    }
+
+    @GetMapping("/jobs/{jobId}/follow-status")
+    @ApiMessage("Get follow status for a job by user")
+    public ResponseEntity<Map<String, Boolean>> getFollowStatus(
+            @PathVariable("jobId") long jobId,
+            @RequestParam("userId") long userId) {
+        boolean followed = jobFollowService.isJobFollowedByUser(jobId, userId);
+        Map<String, Boolean> response = new HashMap<>();
+        response.put("followed", followed);
+        return ResponseEntity.ok(response);
     }
 }

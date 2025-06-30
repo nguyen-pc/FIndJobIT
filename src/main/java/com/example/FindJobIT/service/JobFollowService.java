@@ -41,8 +41,8 @@ public class JobFollowService {
         return this.jobFollowRepository.save(jobFollow);
     }
 
-    public void deleteFollowJob(long idJobFollow) {
-        Optional<JobFollow> jobFollowOptional = this.jobFollowRepository.findById(idJobFollow);
+    public void deleteFollowJob(long jobId, long userId) {
+        Optional<JobFollow> jobFollowOptional = this.jobFollowRepository.findByJobIdAndUserId(jobId, userId);
         if (jobFollowOptional.isEmpty()) {
             throw new IllegalArgumentException("JobFollow not found");
         }
@@ -50,11 +50,11 @@ public class JobFollowService {
     }
 
     // public Iterable<JobFollow> getAllJobFollowsByUserId(Long userId) {
-    //     Optional<User> userOptional = this.userRepository.findById(userId);
-    //     if (userOptional.isEmpty()) {
-    //         throw new IllegalArgumentException("User not found");
-    //     }
-    //     return this.jobFollowRepository.findAllByUser(userOptional.get());
+    // Optional<User> userOptional = this.userRepository.findById(userId);
+    // if (userOptional.isEmpty()) {
+    // throw new IllegalArgumentException("User not found");
+    // }
+    // return this.jobFollowRepository.findAllByUser(userOptional.get());
     // }
 
     public List<Job> getJobsFollowedByUserId(long userId) {
@@ -62,5 +62,14 @@ public class JobFollowService {
         return follows.stream()
                 .map(JobFollow::getJob)
                 .collect(Collectors.toList());
+    }
+
+    public boolean isJobFollowedByUser(long jobId, long userId) {
+        Optional<JobFollow> jobFollowOptional = this.jobFollowRepository.findByJobIdAndUserId(jobId, userId);
+        return jobFollowOptional.isPresent();
+    }
+
+    public long getCompanyFollowCount(long companyId) {
+        return this.jobFollowRepository.countByJob_Company_Id(companyId);
     }
 }

@@ -1,6 +1,8 @@
 package com.example.FindJobIT.controller;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,6 +13,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import com.example.FindJobIT.domain.Company;
 import com.example.FindJobIT.domain.CompanyFollow;
@@ -43,10 +46,11 @@ public class CompanyFollowController {
                 .body(dto);
     }
 
-    @DeleteMapping("/companies/follow/{id}")
+    @DeleteMapping("/companies/follow")
     @ApiMessage("Unfollow a company by id")
-    public ResponseEntity<Void> unfollowCompany(@PathVariable("id") long id) throws IdInvalidException {
-        this.companyFollowService.deleteFollowCompany(id);
+    public ResponseEntity<Void> unfollowCompany(@RequestBody ReqFollowCompany reqFollowCompany)
+            throws IdInvalidException {
+        this.companyFollowService.deleteFollowCompany(reqFollowCompany.getCompanyId(), reqFollowCompany.getUserId());
         return ResponseEntity.ok().body(null);
 
     }
@@ -57,5 +61,25 @@ public class CompanyFollowController {
 
         List<Company> company = companyFollowService.getCompanyFollowedByUserId(id);
         return ResponseEntity.ok(company);
+    }
+
+    @GetMapping("/companies/{companyId}/follow-status")
+    @ApiMessage("Get follow status for a job by user")
+    public ResponseEntity<Map<String, Boolean>> getFollowStatus(
+            @PathVariable("companyId") long companyId,
+            @RequestParam("userId") long userId) {
+        boolean followed = companyFollowService.isCompanyFollowedByUser(companyId, userId);
+        Map<String, Boolean> response = new HashMap<>();
+        response.put("followed", followed);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/companies/{companyId}/follow-count")
+    @ApiMessage("Get the number of followers for a company")
+    public ResponseEntity<Map<String, Long>> getCompanyFollowCount(@PathVariable("companyId") long companyId) {
+        long count = companyFollowService.getFollowerCountForCompany(companyId);
+        Map<String, Long> response = new HashMap<>();
+        response.put("followerCount", count);
+        return ResponseEntity.ok(response);
     }
 }
