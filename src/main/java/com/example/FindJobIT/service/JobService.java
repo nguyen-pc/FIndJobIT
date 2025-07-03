@@ -5,17 +5,22 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import com.example.FindJobIT.domain.Company;
 import com.example.FindJobIT.domain.Job;
+import com.example.FindJobIT.domain.JobFollow;
 import com.example.FindJobIT.domain.Skill;
+import com.example.FindJobIT.domain.User;
 import com.example.FindJobIT.domain.response.ResultPaginationDTO;
 import com.example.FindJobIT.domain.response.job.ResCreateJobDTO;
 import com.example.FindJobIT.domain.response.job.ResUpdateJobDTO;
 import com.example.FindJobIT.repository.CompanyRepository;
+import com.example.FindJobIT.repository.JobFollowRepository;
 import com.example.FindJobIT.repository.JobRepository;
 import com.example.FindJobIT.repository.SkillRepository;
 
@@ -25,13 +30,16 @@ public class JobService {
     private final JobRepository jobRepository;
     private final SkillRepository skillRepository;
     private final CompanyRepository companyRepository;
+    private final JobFollowRepository jobFollowRepository;
+
 
     public JobService(JobRepository jobRepository,
             SkillRepository skillRepository,
-            CompanyRepository companyRepository) {
+            CompanyRepository companyRepository, JobFollowRepository jobFollowRepository) {
         this.jobRepository = jobRepository;
         this.skillRepository = skillRepository;
         this.companyRepository = companyRepository;
+        this.jobFollowRepository = jobFollowRepository;
     }
 
     public Optional<Job> fetchJobById(long id) {
@@ -163,6 +171,34 @@ public class JobService {
         return rs;
     }
 
+    public ResultPaginationDTO fetchLatestJobs(Specification<Job> spec, Pageable pageable) {
+        // Sắp xếp theo createdAt giảm dần
+        Pageable sortedPageable = PageRequest.of(
+                pageable.getPageNumber(),
+                pageable.getPageSize(),
+                Sort.by(Sort.Direction.DESC, "createdAt"));
+        Page<Job> pageJobs = this.jobRepository.findAll(spec, sortedPageable);
+
+        ResultPaginationDTO rs = new ResultPaginationDTO();
+        ResultPaginationDTO.Meta mt = new ResultPaginationDTO.Meta();
+
+        mt.setPage(sortedPageable.getPageNumber() + 1);
+        mt.setPageSize(sortedPageable.getPageSize());
+        mt.setPages(pageJobs.getTotalPages());
+        mt.setTotal(pageJobs.getTotalElements());
+
+        rs.setMeta(mt);
+        rs.setResult(pageJobs.getContent());
+
+        return rs;
+    }
+
+    public List<Job> getLatestJobs(int limit) {
+        Pageable sortedPageable = PageRequest.of(0, limit, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Page<Job> pageJobs = jobRepository.findAll(sortedPageable);
+        return pageJobs.getContent();
+    }
+
     public List<Job> getRecommendedJobs() {
         List<Job> jobs = this.jobRepository.findAll();
         if (jobs != null && !jobs.isEmpty()) {
@@ -174,5 +210,14 @@ public class JobService {
 
     public List<Job> getJobsByCompany(long companyId) {
         return jobRepository.findByCompanyId(companyId);
+    }
+
+     public List<Job> getJobsFollowedByUser(User user) {
+        // Lấy danh sách bản ghi JobFollow theo user
+        List<JobFollow> follows = jobFollowRepository.findAllByUserId(user.getId());
+        // Trích xuất thông tin Job từ mỗi bản ghi JobFollow
+        return follows.stream()
+                      .map(JobFollow::getJob)
+                      .collect(Collectors.toList());
     }
 }

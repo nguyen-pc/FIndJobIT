@@ -304,7 +304,7 @@ public class AuthController {
         PasswordResetToken resetToken = new PasswordResetToken(token, user);
         passwordResetTokenRepository.save(resetToken);
 
-        String resetLink = "http://localhost:8080/api/v1/auth/reset_password?token=" + token;
+        String resetLink = "http://localhost:5173/reset_password?token=" + token;
         emailService.sendEmailForgotPassword(email, "Reset your password", "Click link: " + resetLink);
         return ResponseEntity.ok().build();
     }

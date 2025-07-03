@@ -88,6 +88,25 @@ public class CompanyController {
         return ResponseEntity.ok().body(cOptional.get());
     }
 
-   
+    @PutMapping("/companies/{id}/like")
+    @ApiMessage("like company")
+    public ResponseEntity<Void> likeCompany(@PathVariable("id") long id) {
+        this.companyService.handleLikeCompany(id);
+        return ResponseEntity.ok(null);
+    }
+
+    @PutMapping("/companies/{id}/dislike")
+    @ApiMessage("like company")
+    public ResponseEntity<Void> disLikeCompany(@PathVariable("id") long id) {
+        this.companyService.handleDisLikeCompany(id);
+        return ResponseEntity.ok(null);
+    }
+
+    @GetMapping("companies/likest")
+    @ApiMessage("get companies with most likes")
+    public ResponseEntity<List<Company>> getCompaniesWithMostLikes() {
+        List<Company> companies = this.companyService.getCompaniesWithMostLikes(4);
+        return ResponseEntity.ok(companies);
+    }
 
 }

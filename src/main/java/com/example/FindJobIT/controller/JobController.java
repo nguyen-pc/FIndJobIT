@@ -101,10 +101,32 @@ public class JobController {
         return ResponseEntity.ok().body(this.jobService.fetchAll(spec, pageable));
     }
 
+    @GetMapping("/jobs/latest")
+    @ApiMessage("Get job with pagination")
+    public ResponseEntity<ResultPaginationDTO> getLatestJobs(
+            @Filter Specification<Job> spec,
+            Pageable pageable) {
+
+        return ResponseEntity.ok().body(this.jobService.fetchLatestJobs(spec, pageable));
+    }
+
     @GetMapping("/jobs-company/{companyId}")
     @ApiMessage("Get job with company id")
     public ResponseEntity<List<Job>> getJobsByCompany(@PathVariable("companyId") long companyId) {
         return ResponseEntity.ok().body(this.jobService.getJobsByCompany(companyId));
+    }
+
+    @GetMapping("jobs/follow")
+    @ApiMessage("Get jobs followed by user")
+    public ResponseEntity<List<Job>> getJobsFollowedByUser() {
+        String currentUserEmail = SecurityUtil.getCurrentUserLogin()
+                .orElseThrow(() -> new RuntimeException("User not logged in"));
+        User user = userService.handleGetUserByUsername(currentUserEmail);
+        if (user == null) {
+            throw new RuntimeException("User not found");
+        }
+        List<Job> followedJobs = this.jobService.getJobsFollowedByUser(user);
+        return ResponseEntity.ok().body(followedJobs);
     }
 
     @PostMapping("/jobs/recommend")
@@ -133,6 +155,11 @@ public class JobController {
             dto.setSkills(job.getSkills().stream()
                     .map(Skill::getName).collect(Collectors.toList()));
             dto.setLocation(job.getLocation());
+            dto.setSalary(job.getSalary());
+            dto.setQuantity(job.getQuantity());
+            dto.setLogoUrl(job.getCompany() != null ? job.getCompany().getLogo() : null);
+            dto.setStartDate(job.getStartDate());
+            dto.setEndDate(job.getEndDate());
             return dto;
         }).collect(Collectors.toList());
 
@@ -150,4 +177,7 @@ public class JobController {
         ResponseEntity<Object> response = restTemplate.postForEntity(pythonApiUrl, entity, Object.class);
         return ResponseEntity.ok().body(response.getBody());
     }
+
+
+
 }
