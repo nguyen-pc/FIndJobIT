@@ -100,12 +100,15 @@ public class UserService {
     }
 
     public User handleUpdateUser(User reqUser) {
+        System.out.println("Update user: " + reqUser);
         User currentUser = this.fetchUserById(reqUser.getId());
         if (currentUser != null) {
             currentUser.setAddress(reqUser.getAddress());
             currentUser.setGender(reqUser.getGender());
             currentUser.setAge(reqUser.getAge());
             currentUser.setName(reqUser.getName());
+            currentUser.setPhoneNumber(reqUser.getPhoneNumber());
+            currentUser.setTaxNumber(reqUser.getTaxNumber());
         }
         // check company
         if (reqUser.getCompany() != null) {
@@ -117,6 +120,15 @@ public class UserService {
         if (reqUser.getRole() != null) {
             Role r = this.roleService.fetchById(reqUser.getRole().getId());
             currentUser.setRole(r != null ? r : null);
+        }
+
+        // check skill
+        if (reqUser.getSkills() != null) {
+            List<Long> reqSkills = reqUser.getSkills()
+                    .stream().map(x -> x.getId())
+                    .collect(Collectors.toList());
+            List<Skill> dbSkills = this.skillRepository.findByIdIn(reqSkills);
+            currentUser.setSkills(dbSkills);
         }
 
         currentUser = this.userRepository.save(currentUser);

@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import com.example.FindJobIT.domain.Skill;
 import com.example.FindJobIT.util.constant.GenderEnum;
 
 @Getter
@@ -26,6 +28,8 @@ public class ResUserDTO {
 
     private RoleUser role;
 
+    // private SkillUser[] skill;
+
     @Getter
     @Setter
     @AllArgsConstructor
@@ -34,6 +38,15 @@ public class ResUserDTO {
         private long id;
         private String name;
     }
+
+    // @Getter
+    // @Setter
+    // @AllArgsConstructor
+    // @NoArgsConstructor
+    // public static class SkillUser {
+    //     private long id;
+    //     private String name;
+    // }
 
     @Getter
     @Setter

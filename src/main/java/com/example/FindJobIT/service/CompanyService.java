@@ -53,6 +53,7 @@ public class CompanyService {
         if (companyOptional.isPresent()) {
             Company currentCompany = companyOptional.get();
             currentCompany.setLogo(company.getLogo());
+            currentCompany.setBanner(company.getBanner());
             currentCompany.setName(company.getName());
             currentCompany.setDescription(company.getDescription());
             currentCompany.setAddress(company.getAddress());

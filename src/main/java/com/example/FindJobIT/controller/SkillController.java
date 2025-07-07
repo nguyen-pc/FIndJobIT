@@ -1,5 +1,7 @@
 package com.example.FindJobIT.controller;
 
+import java.util.List;
+
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
@@ -16,6 +18,7 @@ import com.turkraft.springfilter.boot.Filter;
 import jakarta.validation.Valid;
 import com.example.FindJobIT.domain.Skill;
 import com.example.FindJobIT.domain.response.ResultPaginationDTO;
+import com.example.FindJobIT.repository.SkillRepository;
 import com.example.FindJobIT.service.SkillService;
 import com.example.FindJobIT.util.annotation.ApiMessage;
 import com.example.FindJobIT.util.error.IdInvalidException;
@@ -25,9 +28,11 @@ import com.example.FindJobIT.util.error.IdInvalidException;
 public class SkillController {
 
     private final SkillService skillService;
+    private final SkillRepository skillRepository;
 
-    public SkillController(SkillService skillService) {
+    public SkillController(SkillService skillService, SkillRepository skillRepository) {
         this.skillService = skillService;
+        this.skillRepository = skillRepository;
     }
 
     @PostMapping("/skills")
@@ -79,4 +84,13 @@ public class SkillController {
         return ResponseEntity.status(HttpStatus.OK).body(
                 this.skillService.fetchAllSkills(spec, pageable));
     }
+
+    @GetMapping("/skills/all")
+    @ApiMessage("fetch all skills no pagination")
+    public ResponseEntity<List<Skill>> getAllNoPagination() {
+        return ResponseEntity.status(HttpStatus.OK).body(
+                this.skillRepository.findAll());
+    }
+
+
 }

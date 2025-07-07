@@ -212,9 +212,9 @@ public class JobService {
         return jobRepository.findByCompanyId(companyId);
     }
 
-     public List<Job> getJobsFollowedByUser(User user) {
+     public List<Job> getJobsFollowedByUser(long userId) {
         // Lấy danh sách bản ghi JobFollow theo user
-        List<JobFollow> follows = jobFollowRepository.findAllByUserId(user.getId());
+        List<JobFollow> follows = jobFollowRepository.findAllByUserId(userId);
         // Trích xuất thông tin Job từ mỗi bản ghi JobFollow
         return follows.stream()
                       .map(JobFollow::getJob)

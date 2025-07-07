@@ -75,13 +75,13 @@ public class UserController {
 
     @GetMapping("/users/{id}")
     @ApiMessage("fetch user by id")
-    public ResponseEntity<ResUserDTO> getUserById(@PathVariable("id") long id) throws IdInvalidException {
+    public ResponseEntity<User> getUserById(@PathVariable("id") long id) throws IdInvalidException {
 
         User fetchUser = this.userService.fetchUserById(id);
         if (fetchUser == null) {
             throw new IdInvalidException("User voi id = " + id + "khong ton tai");
         }
-        return ResponseEntity.status(HttpStatus.OK).body(this.userService.convertToResUserDTO(fetchUser));
+        return ResponseEntity.status(HttpStatus.OK).body(fetchUser);
     }
 
     @GetMapping("/users")
@@ -107,7 +107,7 @@ public class UserController {
     @PutMapping("/users")
     @ApiMessage("Update a user")
     public ResponseEntity<ResUpdateUserDTO> UpdateUser(@RequestBody User user) throws IdInvalidException {
-
+        System.out.println("Update user: " + user);
         User curUser = this.userService.handleUpdateUser(user);
 
         if (curUser == null) {

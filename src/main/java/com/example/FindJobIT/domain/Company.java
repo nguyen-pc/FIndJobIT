@@ -1,6 +1,5 @@
 package com.example.FindJobIT.domain;
 
-
 import java.time.Instant;
 import java.util.List;
 
@@ -40,6 +39,7 @@ public class Company {
     private String address;
 
     private String logo;
+    private String banner;
 
     private long likeCount;
     // @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss a", timezone = "GMT+7")
@@ -60,7 +60,6 @@ public class Company {
     @JsonIgnore
     List<Job> jobs;
 
-
     @PrePersist
     public void handleBeforeCreate() {
         this.createdBy = SecurityUtil.getCurrentUserLogin().isPresent() == true
@@ -70,7 +69,6 @@ public class Company {
         this.createdAt = Instant.now();
     }
 
-
     @PreUpdate
     public void handleBeforeUpdate() {
         this.updatedBy = SecurityUtil.getCurrentUserLogin().isPresent() == true
@@ -79,5 +77,5 @@ public class Company {
 
         this.updatedAt = Instant.now();
     }
-    
+
 }

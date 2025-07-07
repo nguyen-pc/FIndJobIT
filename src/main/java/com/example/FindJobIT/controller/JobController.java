@@ -116,16 +116,10 @@ public class JobController {
         return ResponseEntity.ok().body(this.jobService.getJobsByCompany(companyId));
     }
 
-    @GetMapping("jobs/follow")
+    @GetMapping("jobs/followed/{id}")
     @ApiMessage("Get jobs followed by user")
-    public ResponseEntity<List<Job>> getJobsFollowedByUser() {
-        String currentUserEmail = SecurityUtil.getCurrentUserLogin()
-                .orElseThrow(() -> new RuntimeException("User not logged in"));
-        User user = userService.handleGetUserByUsername(currentUserEmail);
-        if (user == null) {
-            throw new RuntimeException("User not found");
-        }
-        List<Job> followedJobs = this.jobService.getJobsFollowedByUser(user);
+    public ResponseEntity<List<Job>> getJobsFollowedByUser(@PathVariable("id") long id) throws IdInvalidException {
+        List<Job> followedJobs = this.jobService.getJobsFollowedByUser(id);
         return ResponseEntity.ok().body(followedJobs);
     }
 
@@ -177,7 +171,5 @@ public class JobController {
         ResponseEntity<Object> response = restTemplate.postForEntity(pythonApiUrl, entity, Object.class);
         return ResponseEntity.ok().body(response.getBody());
     }
-
-
 
 }
