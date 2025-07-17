@@ -1,6 +1,6 @@
 package com.example.FindJobIT.controller;
 
-
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -107,32 +107,30 @@ public class ResumeController {
     }
 
     @GetMapping("/resumes")
-    @ApiMessage("Fetch all resume with paginate")
+    @ApiMessage("Fetch all resume with paginate (không cần kiểm tra điều kiện)")
     public ResponseEntity<ResultPaginationDTO> fetchAll(
             @Filter Specification<Resume> spec,
             Pageable pageable) {
 
-        List<Long> arrJobIds = null;
-        String email = SecurityUtil.getCurrentUserLogin().isPresent() == true
-                ? SecurityUtil.getCurrentUserLogin().get()
-                : "";
-        User currentUser = this.userService.handleGetUserByUsername(email);
-        if (currentUser != null) {
-            Company userCompany = currentUser.getCompany();
-            if (userCompany != null) {
-                List<Job> companyJobs = userCompany.getJobs();
-                if (companyJobs != null && companyJobs.size() > 0) {
-                    arrJobIds = companyJobs.stream().map(x -> x.getId())
-                            .collect(Collectors.toList());
-                }
-            }
-        }
-
-        Specification<Resume> jobInSpec = filterSpecificationConverter.convert(filterBuilder.field("job")
-                .in(filterBuilder.input(arrJobIds)).get());
+        // Luôn tạo điều kiện true
+        Specification<Resume> jobInSpec = (root, query, builder) -> builder.conjunction();
 
         Specification<Resume> finalSpec = jobInSpec.and(spec);
+        return ResponseEntity.ok().body(this.resumeService.fetchAllResume(finalSpec, pageable));
+    }
 
+    @GetMapping("/resumes/by-company/{id}")
+    @ApiMessage("Fetch all resume with paginate by company")
+    public ResponseEntity<ResultPaginationDTO> fetchAllByCompany(
+            @PathVariable("id") long jobId,
+            @Filter Specification<Resume> spec,
+            Pageable pageable) {
+
+        // Tạo specification lọc theo job.id = jobId
+        Specification<Resume> jobSpec = (root, query, builder) -> builder.equal(root.get("job").get("id"), jobId);
+
+        // Kết hợp specification của job với các điều kiện khác (nếu có)
+        Specification<Resume> finalSpec = jobSpec.and(spec);
         return ResponseEntity.ok().body(this.resumeService.fetchAllResume(finalSpec, pageable));
     }
 

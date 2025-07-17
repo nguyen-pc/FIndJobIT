@@ -73,6 +73,17 @@ public class PermissionController {
         return ResponseEntity.ok().body(null);
     }
 
+    @GetMapping("/permissions/{id}")
+    @ApiMessage("get permission by id")
+    public ResponseEntity<Permission> getPermissionById(@PathVariable("id") long id) throws IdInvalidException {
+        // check exist by id
+        if (this.permissionService.fetchById(id) == null) {
+            throw new IdInvalidException("Permission với id = " + id + " không tồn tại.");
+        }
+       
+        return ResponseEntity.ok().body(this.permissionService.fetchById(id));
+    }
+
     @GetMapping("/permissions")
     @ApiMessage("Fetch permissions")
     public ResponseEntity<ResultPaginationDTO> getPermissions(

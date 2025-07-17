@@ -85,6 +85,16 @@ public class SkillController {
                 this.skillService.fetchAllSkills(spec, pageable));
     }
 
+    @GetMapping("/skills/{id}")
+    @ApiMessage("fetch a skill by id")
+    public ResponseEntity<Skill> getSkillById(@PathVariable("id") long id) throws IdInvalidException {
+        Skill skill = this.skillService.fetchSkillById(id);
+        if (skill == null) {
+            throw new IdInvalidException("Skill id = " + id + " không tồn tại");
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(skill);
+    }
+
     @GetMapping("/skills/all")
     @ApiMessage("fetch all skills no pagination")
     public ResponseEntity<List<Skill>> getAllNoPagination() {
