@@ -2,13 +2,16 @@ package com.example.FindJobIT.service;
 
 import java.util.Optional;
 
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import com.example.FindJobIT.domain.Position;
 import com.example.FindJobIT.domain.Question;
 import com.example.FindJobIT.domain.Skill;
 import com.example.FindJobIT.domain.request.question.ReqQuestion;
+import com.example.FindJobIT.domain.response.ResultPaginationDTO;
 import com.example.FindJobIT.repository.PositionRepository;
 import com.example.FindJobIT.repository.QuestionRepository;
 import com.example.FindJobIT.repository.SkillRepository;
@@ -62,6 +65,9 @@ public class QuestionService {
         }
         return questionOptional.get();
     }
+    public Question updateQuestion(Question question) {
+        return questionRepository.save(question);
+    }
 
     public Iterable<Question> getAllQuestions(long positionId, long skillId) {
         // Logic to get all questions
@@ -75,5 +81,24 @@ public class QuestionService {
         }
 
         return questionRepository.findAllBySkillAndPosition(skillOptional.get(), positionOptional.get());
+    }
+
+    public ResultPaginationDTO fetchAllQuestion(Specification<Question> spec, Pageable pageable) {
+        Page<Question> pageUser = this.questionRepository.findAll(spec, pageable);
+
+        ResultPaginationDTO rs = new ResultPaginationDTO();
+        ResultPaginationDTO.Meta mt = new ResultPaginationDTO.Meta();
+
+        mt.setPage(pageable.getPageNumber() + 1);
+        mt.setPageSize(pageable.getPageSize());
+
+        mt.setPages(pageUser.getTotalPages());
+        mt.setTotal(pageUser.getTotalElements());
+
+        rs.setMeta(mt);
+
+        rs.setResult(pageUser.getContent());
+
+        return rs;
     }
 }

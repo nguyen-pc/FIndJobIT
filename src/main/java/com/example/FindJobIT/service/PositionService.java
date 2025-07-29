@@ -1,8 +1,11 @@
 package com.example.FindJobIT.service;
 
+import java.util.Optional;
+
 import org.springframework.stereotype.Service;
 
 import com.example.FindJobIT.domain.Position;
+import com.example.FindJobIT.domain.Skill;
 import com.example.FindJobIT.repository.PositionRepository;
 
 @Service
@@ -11,6 +14,13 @@ public class PositionService {
 
     public PositionService(PositionRepository positionRepository) {
         this.positionRepository = positionRepository;
+    }
+
+    public Position fetchPositionById(long id) {
+        Optional<Position> positionOptional = this.positionRepository.findById(id);
+        if (positionOptional.isPresent())
+            return positionOptional.get();
+        return null;
     }
 
     public Position createPosition(Position position) {
